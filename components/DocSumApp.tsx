@@ -7,6 +7,7 @@ import LengthSelector from "./LengthSelector";
 import ProgressSpinner from "./ProgressSpinner";
 import ResultView from "./ResultView";
 import ErrorBanner from "./ErrorBanner";
+import ThemeToggle from "./ThemeToggle";
 
 const initialState: AppState = {
   status: "idle",
@@ -118,9 +119,14 @@ export default function DocSumApp() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:py-16">
-      <header className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">DocSum</h1>
-        <p className="mt-2 text-sm text-slate-500 sm:text-base">
+      <header className="relative text-center">
+        <div className="absolute right-0 top-0">
+          <ThemeToggle />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 transition-colors duration-300 dark:text-slate-100 sm:text-4xl">
+          DocSum
+        </h1>
+        <p className="mt-2 text-sm text-slate-500 transition-colors duration-300 dark:text-slate-400 sm:text-base">
           Upload a PDF or image and get an instant AI summary.
         </p>
       </header>

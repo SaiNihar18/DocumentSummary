@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { validateFile } from "@/lib/validation";
 
@@ -55,33 +56,26 @@ export default function UploadZone({ onFileSelected, onFileRejected, disabled }:
         }
       }}
       aria-disabled={disabled}
-      className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 text-center transition-colors sm:p-16 ${
+      className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 text-center transition-colors duration-300 sm:p-16 ${
         disabled
-          ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+          ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500"
           : isDragActive
-            ? "cursor-pointer border-indigo-400 bg-indigo-50 text-indigo-700"
-            : "cursor-pointer border-slate-300 bg-white text-slate-600 hover:border-indigo-300 hover:bg-slate-50"
+            ? "cursor-pointer border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/40 dark:text-indigo-300"
+            : "cursor-pointer border-slate-300 bg-white text-slate-600 hover:border-indigo-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-indigo-500 dark:hover:bg-slate-800"
       }`}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        className="h-10 w-10"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 8.25 12 3.75m0 0L7.5 8.25M12 3.75v13.5"
-        />
-      </svg>
+      <Image
+        src="/images/cloud-upload-folder.png"
+        alt=""
+        width={96}
+        height={96}
+        className={`h-20 w-20 sm:h-24 sm:w-24 ${disabled ? "opacity-40 grayscale" : ""}`}
+        priority
+      />
       <p className="text-sm font-medium sm:text-base">
         Drag &amp; drop a PDF, JPG, or PNG here, or click to browse
       </p>
-      <p className="text-xs text-slate-400">Max file size 10MB</p>
+      <p className="text-xs text-slate-400 transition-colors duration-300 dark:text-slate-500">Max file size 10MB</p>
       <input
         ref={inputRef}
         type="file"
