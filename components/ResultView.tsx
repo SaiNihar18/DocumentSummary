@@ -16,7 +16,7 @@ export default function ResultView({ result, onStartOver }: ResultViewProps) {
 
   return (
     <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-8">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
           {PROVIDER_LABEL[result.provider]}
         </span>

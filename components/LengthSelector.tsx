@@ -16,7 +16,7 @@ const OPTIONS: { value: SummaryLength; label: string }[] = [
 
 export default function LengthSelector({ value, onChange, disabled }: LengthSelectorProps) {
   return (
-    <div className="flex items-center gap-2" role="radiogroup" aria-label="Summary length">
+    <div className="flex flex-wrap items-center justify-center gap-2" role="radiogroup" aria-label="Summary length">
       {OPTIONS.map((option) => (
         <button
           key={option.value}
