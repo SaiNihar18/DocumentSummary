@@ -1,7 +1,7 @@
 import type { Provider, SummaryLength, SummaryResult } from "@/lib/types";
 
 const MAX_INPUT_CHARS = 30_000;
-const GEMINI_TIMEOUT_MS = 15_000;
+const PRIMARY_TIMEOUT_MS = 15_000;
 
 export class SummarizeError extends Error {
   cause?: unknown;
@@ -25,7 +25,7 @@ function buildPrompt(text: string, length: SummaryLength): string {
     lengthSpec[length],
     "Accuracy and structural formatting rules:",
     "- Accurately preserve all numbers, metrics, calculations, tabular data, formulas, names, and key facts.",
-    "- If the document includes tables, matrices, multiplication tables, or structured lists, preserve their clear row/item structure, relationships, and exact values in the summary and key points.",
+    "- If the document includes tables, matrices, multiplication tables, or structured comparisons, represent them as a Markdown table inside the \"summary\" string: a header row, a separator row of dashes (e.g. |---|---|), and one row per data row, using | to separate columns. Preserve exact values.",
     "- Ensure clear, readable formatting and do not omit critical numerical data.",
     "Respond ONLY with valid JSON matching exactly this shape, no markdown fences, no commentary:",
     '{"summary": "string", "keyPoints": ["string", "..."]}',
@@ -36,7 +36,7 @@ function buildPrompt(text: string, length: SummaryLength): string {
 }
 
 
-function parseSummaryJson(raw: string, provider: Provider): SummaryResult {
+function parseSummaryJson(raw: string, provider: Provider): Omit<SummaryResult, "truncated"> {
   let cleaned = raw.trim();
   cleaned = cleaned.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/, "").trim();
 
@@ -85,7 +85,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
-async function callGemini(text: string, length: SummaryLength): Promise<SummaryResult> {
+async function callGemini(text: string, length: SummaryLength): Promise<Omit<SummaryResult, "truncated">> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new SummarizeError("GEMINI_API_KEY is not configured");
@@ -94,7 +94,7 @@ async function callGemini(text: string, length: SummaryLength): Promise<SummaryR
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-flash-lite-latest",
     generationConfig: {
       responseMimeType: "application/json",
     },
@@ -105,7 +105,7 @@ async function callGemini(text: string, length: SummaryLength): Promise<SummaryR
   return parseSummaryJson(raw, "gemini");
 }
 
-async function callGroq(text: string, length: SummaryLength): Promise<SummaryResult> {
+async function callGroq(text: string, length: SummaryLength): Promise<Omit<SummaryResult, "truncated">> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new SummarizeError("GROQ_API_KEY is not configured");
@@ -130,24 +130,25 @@ export async function getSummary(text: string, length: SummaryLength): Promise<S
     throw new SummarizeError("No text to summarize");
   }
 
-  const truncated = text.slice(0, MAX_INPUT_CHARS);
+  const wasTruncated = text.length > MAX_INPUT_CHARS;
+  const truncatedText = text.slice(0, MAX_INPUT_CHARS);
 
   try {
-    const result = await withTimeout(callGemini(truncated, length), GEMINI_TIMEOUT_MS, "gemini");
-    console.log("[getSummary] served by gemini");
-    return result;
-  } catch (geminiErr) {
-    console.warn("[getSummary] gemini failed, falling back to groq:", (geminiErr as Error).message);
+    const result = await withTimeout(callGroq(truncatedText, length), PRIMARY_TIMEOUT_MS, "groq");
+    console.log("[getSummary] served by groq");
+    return { ...result, truncated: wasTruncated };
+  } catch (groqErr) {
+    console.warn("[getSummary] groq failed, falling back to gemini:", (groqErr as Error).message);
 
     try {
-      const result = await callGroq(truncated, length);
-      console.log("[getSummary] served by groq (fallback)");
-      return result;
-    } catch (groqErr) {
-      console.error("[getSummary] both providers failed:", (groqErr as Error).message);
-      throw new SummarizeError("Both Gemini and Groq failed to summarize the document", {
-        geminiErr,
+      const result = await callGemini(truncatedText, length);
+      console.log("[getSummary] served by gemini (fallback)");
+      return { ...result, truncated: wasTruncated };
+    } catch (geminiErr) {
+      console.error("[getSummary] both providers failed:", (geminiErr as Error).message);
+      throw new SummarizeError("Both Groq and Gemini failed to summarize the document", {
         groqErr,
+        geminiErr,
       });
     }
   }
