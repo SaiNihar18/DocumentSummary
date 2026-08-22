@@ -1,11 +1,12 @@
 export type SummaryLength = "short" | "medium" | "long";
 
-export type Provider = "gemini" | "groq";
+export type Provider = "gemini" | "groq" | "none";
 
 export interface SummaryResult {
   summary: string;
   keyPoints: string[];
   provider: Provider;
+  truncated: boolean;
 }
 
 export type AppStatus = "idle" | "extracting" | "summarizing" | "result" | "error";
@@ -25,6 +26,7 @@ export interface AppState {
   result: SummaryResult | null;
   error: { kind: ErrorKind; message: string } | null;
   ocrProgress: number | null;
+  verifyingWithAi: boolean;
 }
 
 export type AppAction =
@@ -32,6 +34,7 @@ export type AppAction =
   | { type: "FILE_REJECTED"; message: string }
   | { type: "EXTRACT_START" }
   | { type: "EXTRACT_PROGRESS"; pct: number }
+  | { type: "EXTRACT_VERIFY_START" }
   | { type: "EXTRACT_SUCCESS"; text: string }
   | { type: "EXTRACT_FAILURE"; message: string }
   | { type: "LENGTH_CHANGED"; length: SummaryLength }

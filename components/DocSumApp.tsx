@@ -9,6 +9,9 @@ import ResultView from "./ResultView";
 import ErrorBanner from "./ErrorBanner";
 import ThemeToggle from "./ThemeToggle";
 
+const MIN_WORDS_FOR_SUMMARY = 30;
+const OCR_CONFIDENCE_THRESHOLD = 75;
+
 const initialState: AppState = {
   status: "idle",
   file: null,
@@ -17,6 +20,7 @@ const initialState: AppState = {
   result: null,
   error: null,
   ocrProgress: null,
+  verifyingWithAi: false,
 };
 
 function reducer(state: AppState, action: AppAction): AppState {
@@ -29,10 +33,12 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, status: "extracting" };
     case "EXTRACT_PROGRESS":
       return { ...state, ocrProgress: action.pct };
+    case "EXTRACT_VERIFY_START":
+      return { ...state, verifyingWithAi: true };
     case "EXTRACT_SUCCESS":
-      return { ...state, extractedText: action.text };
+      return { ...state, extractedText: action.text, verifyingWithAi: false };
     case "EXTRACT_FAILURE":
-      return { ...state, status: "error", error: { kind: "extraction-failed", message: action.message } };
+      return { ...state, status: "error", verifyingWithAi: false, error: { kind: "extraction-failed", message: action.message } };
     case "LENGTH_CHANGED":
       return { ...state, length: action.length };
     case "SUMMARIZE_START":
@@ -57,6 +63,19 @@ async function extractPdfViaApi(file: File): Promise<string> {
 
   if (!res.ok) {
     throw new Error(body.error ?? "Failed to extract text from PDF");
+  }
+  return body.text ?? "";
+}
+
+async function extractImageViaVisionApi(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/extract-image", { method: "POST", body: formData });
+  const body = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(body.error ?? "Failed to read text from the image");
   }
   return body.text ?? "";
 }
@@ -107,7 +126,21 @@ export default function DocSumApp() {
         text = await extractPdfViaApi(file);
       } else {
         const { runOcr } = await import("@/lib/ocr");
-        text = await runOcr(file, (pct) => dispatch({ type: "EXTRACT_PROGRESS", pct }));
+        const ocrResult = await runOcr(file, (pct) => dispatch({ type: "EXTRACT_PROGRESS", pct }));
+        text = ocrResult.text;
+
+        if (ocrResult.confidence < OCR_CONFIDENCE_THRESHOLD) {
+          dispatch({ type: "EXTRACT_VERIFY_START" });
+          try {
+            const visionText = await extractImageViaVisionApi(file);
+            if (visionText.trim()) {
+              text = visionText;
+            }
+          } catch {
+            // Vision escalation failed (e.g. both providers down); fall back to the
+            // lower-confidence Tesseract result rather than failing the whole upload.
+          }
+        }
       }
 
       if (!text.trim()) {
@@ -116,6 +149,16 @@ export default function DocSumApp() {
       }
 
       dispatch({ type: "EXTRACT_SUCCESS", text });
+
+      const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+      if (wordCount < MIN_WORDS_FOR_SUMMARY) {
+        dispatch({
+          type: "SUMMARIZE_SUCCESS",
+          result: { summary: text.trim(), keyPoints: [], provider: "none", truncated: false },
+        });
+        return;
+      }
+
       await handleSummarize(text, state.length);
     } catch (e) {
       dispatch({ type: "EXTRACT_FAILURE", message: (e as Error).message || "Failed to extract text from the document." });
@@ -125,7 +168,7 @@ export default function DocSumApp() {
   const isBusy = state.status === "extracting" || state.status === "summarizing";
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:py-16 print:min-h-0 print:p-0">
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 py-10 sm:py-16 print:min-h-0 print:p-0">
       <header className="relative text-center print:hidden">
         <div className="absolute right-0 top-0">
           <ThemeToggle />
@@ -154,8 +197,14 @@ export default function DocSumApp() {
 
       {state.status === "extracting" && (
         <ProgressSpinner
-          label={state.file?.type === "application/pdf" ? "Extracting text from PDF…" : "Reading text from image…"}
-          progressPct={state.file?.type === "application/pdf" ? null : state.ocrProgress}
+          label={
+            state.file?.type === "application/pdf"
+              ? "Extracting text from PDF…"
+              : state.verifyingWithAi
+                ? "Double-checking with AI…"
+                : "Reading text from image…"
+          }
+          progressPct={state.file?.type === "application/pdf" || state.verifyingWithAi ? null : state.ocrProgress}
         />
       )}
 
