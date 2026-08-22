@@ -90,6 +90,13 @@ export default function DocSumApp() {
     }
   }
 
+  async function handleLengthChange(length: SummaryLength) {
+    dispatch({ type: "LENGTH_CHANGED", length });
+    if (state.status === "result" && state.extractedText) {
+      await handleSummarize(state.extractedText, length);
+    }
+  }
+
   async function handleFileSelected(file: File) {
     dispatch({ type: "FILE_SELECTED", file });
     dispatch({ type: "EXTRACT_START" });
@@ -133,11 +140,7 @@ export default function DocSumApp() {
 
       {(state.status === "idle" || state.status === "extracting" || state.status === "summarizing") && (
         <div className="flex justify-center">
-          <LengthSelector
-            value={state.length}
-            onChange={(length) => dispatch({ type: "LENGTH_CHANGED", length })}
-            disabled={isBusy}
-          />
+          <LengthSelector value={state.length} onChange={handleLengthChange} disabled={isBusy} />
         </div>
       )}
 
@@ -158,7 +161,12 @@ export default function DocSumApp() {
       {state.status === "summarizing" && <ProgressSpinner label="Summarizing…" />}
 
       {state.status === "result" && state.result && (
-        <ResultView result={state.result} onStartOver={() => dispatch({ type: "RESET" })} />
+        <ResultView
+          result={state.result}
+          length={state.length}
+          onLengthChange={handleLengthChange}
+          onStartOver={() => dispatch({ type: "RESET" })}
+        />
       )}
 
       {state.status === "error" && state.error && (
