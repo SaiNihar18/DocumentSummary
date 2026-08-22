@@ -38,20 +38,20 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
       </div>
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 transition-colors duration-300 dark:text-slate-500 print:text-xs print:font-bold print:text-slate-700">
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:text-slate-900">
           Summary
         </h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700 transition-colors duration-300 dark:text-slate-200 sm:text-base print:text-sm print:leading-relaxed print:text-slate-900">
+        <p className="whitespace-pre-line text-sm font-medium leading-relaxed text-slate-800 transition-colors duration-300 dark:text-slate-100 sm:text-base sm:leading-relaxed print:text-sm print:font-medium print:leading-relaxed print:text-slate-900">
           {result.summary}
         </p>
       </div>
 
       {result.keyPoints.length > 0 && (
         <div className="print:mt-3">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 transition-colors duration-300 dark:text-slate-500 print:text-xs print:font-bold print:text-slate-700">
+          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:text-slate-900">
             Key Points
           </h2>
-          <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700 transition-colors duration-300 dark:text-slate-200 sm:text-base print:space-y-2 print:text-sm print:leading-relaxed print:text-slate-900">
+          <ul className="list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-slate-800 transition-colors duration-300 dark:text-slate-100 sm:text-base sm:leading-relaxed print:space-y-2 print:text-sm print:font-medium print:leading-relaxed print:text-slate-900">
             {result.keyPoints.map((point, i) => (
               <li key={i} className="print:break-inside-avoid">
                 {point}
@@ -60,6 +60,7 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
           </ul>
         </div>
       )}
+
 
       {/* Screen Footer Actions */}
       <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 transition-colors duration-300 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between print:hidden">

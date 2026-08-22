@@ -23,6 +23,10 @@ function buildPrompt(text: string, length: SummaryLength): string {
   return [
     "You are a precise document summarization assistant.",
     lengthSpec[length],
+    "Accuracy and structural formatting rules:",
+    "- Accurately preserve all numbers, metrics, calculations, tabular data, formulas, names, and key facts.",
+    "- If the document includes tables, matrices, multiplication tables, or structured lists, preserve their clear row/item structure, relationships, and exact values in the summary and key points.",
+    "- Ensure clear, readable formatting and do not omit critical numerical data.",
     "Respond ONLY with valid JSON matching exactly this shape, no markdown fences, no commentary:",
     '{"summary": "string", "keyPoints": ["string", "..."]}',
     "---DOCUMENT TEXT START---",
@@ -30,6 +34,7 @@ function buildPrompt(text: string, length: SummaryLength): string {
     "---DOCUMENT TEXT END---",
   ].join("\n\n");
 }
+
 
 function parseSummaryJson(raw: string, provider: Provider): SummaryResult {
   let cleaned = raw.trim();
