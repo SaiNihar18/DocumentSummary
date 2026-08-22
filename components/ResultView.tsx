@@ -19,36 +19,50 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
   const copyText = [result.summary, "", "Key points:", ...result.keyPoints.map((p) => `- ${p}`)].join("\n");
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900 sm:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900 sm:p-8 print:border-none print:bg-transparent print:p-0 print:shadow-none">
+      {/* Print-only Document Title */}
+      <div className="hidden pb-3 border-b border-slate-300 print:block">
+        <h1 className="text-2xl font-bold text-slate-900">DocSum Summary</h1>
+        <p className="text-xs text-slate-500">{PROVIDER_LABEL[result.provider]}</p>
+      </div>
+
+      {/* Screen Header Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 transition-colors duration-300 dark:bg-slate-800 dark:text-slate-400">
           {PROVIDER_LABEL[result.provider]}
         </span>
         <div className="flex items-center gap-2">
           <CopyButton text={copyText} />
-          <DownloadPdfButton result={result} />
+          <DownloadPdfButton />
         </div>
       </div>
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 transition-colors duration-300 dark:text-slate-500">Summary</h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700 transition-colors duration-300 dark:text-slate-200 sm:text-base">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 transition-colors duration-300 dark:text-slate-500 print:text-xs print:font-bold print:text-slate-700">
+          Summary
+        </h2>
+        <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700 transition-colors duration-300 dark:text-slate-200 sm:text-base print:text-sm print:leading-relaxed print:text-slate-900">
           {result.summary}
         </p>
       </div>
 
       {result.keyPoints.length > 0 && (
-        <div>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 transition-colors duration-300 dark:text-slate-500">Key Points</h2>
-          <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700 transition-colors duration-300 dark:text-slate-200 sm:text-base">
+        <div className="print:mt-3">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400 transition-colors duration-300 dark:text-slate-500 print:text-xs print:font-bold print:text-slate-700">
+            Key Points
+          </h2>
+          <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700 transition-colors duration-300 dark:text-slate-200 sm:text-base print:space-y-2 print:text-sm print:leading-relaxed print:text-slate-900">
             {result.keyPoints.map((point, i) => (
-              <li key={i}>{point}</li>
+              <li key={i} className="print:break-inside-avoid">
+                {point}
+              </li>
             ))}
           </ul>
         </div>
       )}
 
-      <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 transition-colors duration-300 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+      {/* Screen Footer Actions */}
+      <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 transition-colors duration-300 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div className="flex flex-col items-start gap-1.5">
           <span className="text-xs font-medium text-slate-400 transition-colors duration-300 dark:text-slate-500">
             Regenerate as
@@ -66,3 +80,4 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
     </div>
   );
 }
+

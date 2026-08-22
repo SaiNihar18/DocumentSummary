@@ -1,33 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import type { SummaryResult } from "@/lib/types";
-
-interface DownloadPdfButtonProps {
-  result: SummaryResult;
-}
-
-export default function DownloadPdfButton({ result }: DownloadPdfButtonProps) {
-  const [generating, setGenerating] = useState(false);
-
-  async function handleDownload() {
-    setGenerating(true);
-    try {
-      const { downloadSummaryAsPdf } = await import("@/lib/pdf");
-      await downloadSummaryAsPdf(result);
-    } finally {
-      setGenerating(false);
-    }
+export default function DownloadPdfButton() {
+  function handlePrint() {
+    window.print();
   }
 
   return (
     <button
       type="button"
-      onClick={handleDownload}
-      disabled={generating}
-      className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors duration-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      onClick={handlePrint}
+      aria-label="Print or save summary as PDF"
+      className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors duration-300 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 print:hidden"
     >
-      {generating ? "Preparing…" : "Download PDF"}
+      <svg
+        className="h-4 w-4 text-slate-500 dark:text-slate-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+        />
+      </svg>
+      <span>Print / PDF</span>
     </button>
   );
 }
+

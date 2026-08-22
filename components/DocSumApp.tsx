@@ -125,8 +125,8 @@ export default function DocSumApp() {
   const isBusy = state.status === "extracting" || state.status === "summarizing";
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:py-16">
-      <header className="relative text-center">
+    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:py-16 print:min-h-0 print:p-0">
+      <header className="relative text-center print:hidden">
         <div className="absolute right-0 top-0">
           <ThemeToggle />
         </div>
@@ -139,10 +139,11 @@ export default function DocSumApp() {
       </header>
 
       {(state.status === "idle" || state.status === "extracting" || state.status === "summarizing") && (
-        <div className="flex justify-center">
+        <div className="flex justify-center print:hidden">
           <LengthSelector value={state.length} onChange={handleLengthChange} disabled={isBusy} />
         </div>
       )}
+
 
       {state.status === "idle" && (
         <UploadZone
