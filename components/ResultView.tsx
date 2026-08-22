@@ -1,7 +1,9 @@
+import { formatSummaryForCopy } from "@/lib/markdown";
 import type { SummaryLength, SummaryResult } from "@/lib/types";
 import CopyButton from "./CopyButton";
 import DownloadPdfButton from "./DownloadPdfButton";
 import LengthSelector from "./LengthSelector";
+import SummaryContent from "./SummaryContent";
 
 interface ResultViewProps {
   result: SummaryResult;
@@ -13,10 +15,11 @@ interface ResultViewProps {
 const PROVIDER_LABEL: Record<SummaryResult["provider"], string> = {
   gemini: "Powered by Gemini",
   groq: "Powered by Groq",
+  none: "Shown as extracted (too short to summarize)",
 };
 
 export default function ResultView({ result, length, onLengthChange, onStartOver }: ResultViewProps) {
-  const copyText = [result.summary, "", "Key points:", ...result.keyPoints.map((p) => `- ${p}`)].join("\n");
+  const { text: copyText, html: copyHtml } = formatSummaryForCopy(result);
 
   return (
     <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900 sm:p-8 print:border-none print:bg-transparent print:p-0 print:shadow-none">
@@ -32,18 +35,22 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
           {PROVIDER_LABEL[result.provider]}
         </span>
         <div className="flex items-center gap-2">
-          <CopyButton text={copyText} />
+          <CopyButton text={copyText} html={copyHtml} />
           <DownloadPdfButton />
         </div>
       </div>
+
+      {result.truncated && (
+        <p className="rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 transition-colors duration-300 dark:bg-amber-950/40 dark:text-amber-300 print:hidden">
+          This document was long, so only the first ~30,000 characters were used to generate this summary.
+        </p>
+      )}
 
       <div>
         <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:text-slate-900">
           Summary
         </h2>
-        <p className="whitespace-pre-line text-sm font-medium leading-relaxed text-slate-800 transition-colors duration-300 dark:text-slate-100 sm:text-base sm:leading-relaxed print:text-sm print:font-medium print:leading-relaxed print:text-slate-900">
-          {result.summary}
-        </p>
+        <SummaryContent text={result.summary} />
       </div>
 
       {result.keyPoints.length > 0 && (
