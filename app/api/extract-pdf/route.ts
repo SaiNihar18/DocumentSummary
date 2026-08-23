@@ -19,13 +19,16 @@ export async function POST(req: Request) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
+  // Imported dynamically, and only here, so pdf-parse is never evaluated during
+  // next build's route/page analysis.
+  const { PDFParse, PasswordException } = await import("pdf-parse");
+  const parser = new PDFParse({ data: buffer });
+
   try {
-    // Imported dynamically, and only here, so pdf-parse is never evaluated during
-    // next build's route/page analysis (its module load path is known to misbehave
-    // when eagerly statically imported).
-    const pdfParse = (await import("pdf-parse")).default;
-    const data = await pdfParse(buffer);
-    const text = data.text?.trim() ?? "";
+    // pageJoiner defaults to a "-- N of M --" marker between pages, which is non-empty
+    // even for a blank/scanned PDF and would defeat the empty-text check below.
+    const result = await parser.getText({ pageJoiner: "" });
+    const text = result.text?.trim() ?? "";
 
     if (!text) {
       return Response.json(
@@ -36,7 +39,12 @@ export async function POST(req: Request) {
 
     return Response.json({ text });
   } catch (err) {
+    if (err instanceof PasswordException) {
+      return Response.json({ error: "This PDF is password-protected and can't be read" }, { status: 422 });
+    }
     console.error("[extract-pdf] failed:", err);
     return Response.json({ error: "Failed to extract text from PDF" }, { status: 500 });
+  } finally {
+    await parser.destroy();
   }
 }
