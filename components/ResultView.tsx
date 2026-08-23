@@ -22,7 +22,7 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
   const { text: copyText, html: copyHtml } = formatSummaryForCopy(result);
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900 sm:p-8 print:border-none print:bg-transparent print:p-0 print:shadow-none">
+    <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900 sm:p-8 print:!border-none print:!bg-white print:p-0 print:!shadow-none">
       {/* Print-only Document Title */}
       <div className="hidden pb-3 border-b border-slate-300 print:block">
         <h1 className="text-2xl font-bold text-slate-900">DocSum Summary</h1>
@@ -47,7 +47,7 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
       )}
 
       <div>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:text-slate-900">
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:!text-slate-900">
           Summary
         </h2>
         <SummaryContent text={result.summary} />
@@ -55,10 +55,10 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
 
       {result.keyPoints.length > 0 && (
         <div className="print:mt-3">
-          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:text-slate-900">
+          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:!text-slate-900">
             Key Points
           </h2>
-          <ul className="list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-slate-800 transition-colors duration-300 dark:text-slate-100 sm:text-base sm:leading-relaxed print:space-y-2 print:text-sm print:font-medium print:leading-relaxed print:text-slate-900">
+          <ul className="list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-slate-800 transition-colors duration-300 dark:text-slate-100 sm:text-base sm:leading-relaxed print:space-y-2 print:text-sm print:font-medium print:leading-relaxed print:!text-slate-900">
             {result.keyPoints.map((point, i) => (
               <li key={i} className="print:break-inside-avoid">
                 {point}
