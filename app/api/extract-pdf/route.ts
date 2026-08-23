@@ -22,7 +22,10 @@ export async function POST(req: Request) {
   // Imported dynamically, and only here, so pdf-parse is never evaluated during
   // next build's route/page analysis.
   const { PDFParse, PasswordException } = await import("pdf-parse");
-  const parser = new PDFParse({ data: buffer });
+  // CanvasFactory must be passed explicitly in Node/serverless environments, or pdfjs-dist's
+  // internal matrix math throws "DOMMatrix is not defined" (DOMMatrix is a browser-only global).
+  const { CanvasFactory } = await import("pdf-parse/worker");
+  const parser = new PDFParse({ data: buffer, CanvasFactory });
 
   try {
     // pageJoiner defaults to a "-- N of M --" marker between pages, which is non-empty
