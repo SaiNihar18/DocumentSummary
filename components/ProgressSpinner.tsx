@@ -1,9 +1,10 @@
 interface ProgressSpinnerProps {
   label: string;
   progressPct?: number | null;
+  fileName?: string | null;
 }
 
-export default function ProgressSpinner({ label, progressPct }: ProgressSpinnerProps) {
+export default function ProgressSpinner({ label, progressPct, fileName }: ProgressSpinnerProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
       <div
@@ -15,6 +16,11 @@ export default function ProgressSpinner({ label, progressPct }: ProgressSpinnerP
         {label}
         {typeof progressPct === "number" ? ` (${progressPct}%)` : ""}
       </p>
+      {fileName && (
+        <p className="max-w-xs truncate text-xs text-slate-400 transition-colors duration-300 dark:text-slate-500">
+          {fileName}
+        </p>
+      )}
     </div>
   );
 }

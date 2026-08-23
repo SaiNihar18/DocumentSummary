@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useReducer } from "react";
 import type { AppAction, AppState, ErrorKind, SummaryLength } from "@/lib/types";
 import UploadZone from "./UploadZone";
@@ -168,14 +169,17 @@ export default function DocSumApp() {
   const isBusy = state.status === "extracting" || state.status === "summarizing";
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 py-10 sm:py-16 print:min-h-0 print:p-0">
+    <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-10 sm:py-16 print:min-h-0 print:p-0">
       <header className="relative text-center print:hidden">
         <div className="absolute right-0 top-0">
           <ThemeToggle />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 transition-colors duration-300 dark:text-slate-100 sm:text-4xl">
-          DocSum
-        </h1>
+        <div className="flex items-center justify-center gap-2.5">
+          <Image src="/images/logo.png" alt="" width={36} height={36} className="h-8 w-8 sm:h-9 sm:w-9" priority />
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 transition-colors duration-300 dark:text-slate-100 sm:text-4xl">
+            DocSum
+          </h1>
+        </div>
         <p className="mt-2 text-sm text-slate-500 transition-colors duration-300 dark:text-slate-400 sm:text-base">
           Upload a PDF or image and get an instant AI summary.
         </p>
@@ -205,15 +209,17 @@ export default function DocSumApp() {
                 : "Reading text from image…"
           }
           progressPct={state.file?.type === "application/pdf" || state.verifyingWithAi ? null : state.ocrProgress}
+          fileName={state.file?.name}
         />
       )}
 
-      {state.status === "summarizing" && <ProgressSpinner label="Summarizing…" />}
+      {state.status === "summarizing" && <ProgressSpinner label="Summarizing…" fileName={state.file?.name} />}
 
       {state.status === "result" && state.result && (
         <ResultView
           result={state.result}
           length={state.length}
+          fileName={state.file?.name}
           onLengthChange={handleLengthChange}
           onStartOver={() => dispatch({ type: "RESET" })}
         />

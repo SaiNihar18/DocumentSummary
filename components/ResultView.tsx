@@ -8,6 +8,7 @@ import SummaryContent from "./SummaryContent";
 interface ResultViewProps {
   result: SummaryResult;
   length: SummaryLength;
+  fileName?: string | null;
   onLengthChange: (length: SummaryLength) => void;
   onStartOver: () => void;
 }
@@ -18,7 +19,7 @@ const PROVIDER_LABEL: Record<SummaryResult["provider"], string> = {
   none: "Shown as extracted (too short to summarize)",
 };
 
-export default function ResultView({ result, length, onLengthChange, onStartOver }: ResultViewProps) {
+export default function ResultView({ result, length, fileName, onLengthChange, onStartOver }: ResultViewProps) {
   const { text: copyText, html: copyHtml } = formatSummaryForCopy(result);
 
   return (
@@ -26,14 +27,22 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
       {/* Print-only Document Title */}
       <div className="hidden pb-3 border-b border-slate-300 print:block">
         <h1 className="text-2xl font-bold text-slate-900">DocSum Summary</h1>
+        {fileName && <p className="text-xs text-slate-500">{fileName}</p>}
         <p className="text-xs text-slate-500">{PROVIDER_LABEL[result.provider]}</p>
       </div>
 
       {/* Screen Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 transition-colors duration-300 dark:bg-slate-800 dark:text-slate-400">
-          {PROVIDER_LABEL[result.provider]}
-        </span>
+        <div className="flex min-w-0 flex-col gap-1">
+          {fileName && (
+            <span className="max-w-[16rem] truncate text-xs font-medium text-slate-500 transition-colors duration-300 dark:text-slate-400 sm:max-w-sm">
+              {fileName}
+            </span>
+          )}
+          <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 transition-colors duration-300 dark:bg-slate-800 dark:text-slate-400">
+            {PROVIDER_LABEL[result.provider]}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <CopyButton text={copyText} html={copyHtml} />
           <DownloadPdfButton />
