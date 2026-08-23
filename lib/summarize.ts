@@ -27,8 +27,9 @@ function buildPrompt(text: string, length: SummaryLength): string {
     "- Accurately preserve all numbers, metrics, calculations, tabular data, formulas, names, and key facts.",
     "- If the document includes tables, matrices, multiplication tables, or structured comparisons, represent them as a Markdown table inside the \"summary\" string: a header row, a separator row of dashes (e.g. |---|---|), and one row per data row, using | to separate columns. Preserve exact values.",
     "- Ensure clear, readable formatting and do not omit critical numerical data.",
+    "- Also provide 2-3 concrete, actionable suggestions for improving the source document itself (e.g. missing information, unclear structure, formatting issues, gaps worth addressing). Be specific to this document, not generic advice.",
     "Respond ONLY with valid JSON matching exactly this shape, no markdown fences, no commentary:",
-    '{"summary": "string", "keyPoints": ["string", "..."]}',
+    '{"summary": "string", "keyPoints": ["string", "..."], "improvementSuggestions": ["string", "..."]}',
     "---DOCUMENT TEXT START---",
     text,
     "---DOCUMENT TEXT END---",
@@ -54,7 +55,7 @@ function parseSummaryJson(raw: string, provider: Provider): Omit<SummaryResult, 
     }
   }
 
-  const candidate = parsed as { summary?: unknown; keyPoints?: unknown } | undefined;
+  const candidate = parsed as { summary?: unknown; keyPoints?: unknown; improvementSuggestions?: unknown } | undefined;
 
   if (!candidate || typeof candidate.summary !== "string" || !Array.isArray(candidate.keyPoints)) {
     throw new SummarizeError(`${provider} returned malformed JSON`);
@@ -63,6 +64,9 @@ function parseSummaryJson(raw: string, provider: Provider): Omit<SummaryResult, 
   return {
     summary: candidate.summary,
     keyPoints: candidate.keyPoints.filter((p): p is string => typeof p === "string"),
+    improvementSuggestions: Array.isArray(candidate.improvementSuggestions)
+      ? candidate.improvementSuggestions.filter((p): p is string => typeof p === "string")
+      : [],
     provider,
   };
 }

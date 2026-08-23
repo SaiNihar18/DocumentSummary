@@ -154,7 +154,7 @@ export default function DocSumApp() {
       if (wordCount < MIN_WORDS_FOR_SUMMARY) {
         dispatch({
           type: "SUMMARIZE_SUCCESS",
-          result: { summary: text.trim(), keyPoints: [], provider: "none", truncated: false },
+          result: { summary: text.trim(), keyPoints: [], improvementSuggestions: [], provider: "none", truncated: false },
         });
         return;
       }

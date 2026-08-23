@@ -5,6 +5,7 @@ export type Provider = "gemini" | "groq" | "none";
 export interface SummaryResult {
   summary: string;
   keyPoints: string[];
+  improvementSuggestions: string[];
   provider: Provider;
   truncated: boolean;
 }

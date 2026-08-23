@@ -10,6 +10,7 @@ Upload a PDF, JPG, or PNG and get an AI-generated summary with key points in sec
 - Summarization with a Groq primary provider and an automatic Gemini fallback
 - Markdown tables in a summary render as real tables, on screen, in copy, and in the print/PDF export
 - Adjustable summary length (short / medium / long), with in-place regeneration from an existing extraction
+- Each summary includes 2-3 concrete suggestions for improving the source document itself, not just a recap of its content
 - Copy-to-clipboard (rich table formatting included), "Powered by Gemini/Groq" tag, and clear error states for every failure mode
 
 ## Tech Stack

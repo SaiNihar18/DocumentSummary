@@ -83,7 +83,11 @@ function blockToHtml(block: SummaryBlock): string {
   return `<table style="border-collapse:collapse;margin:8px 0;">${headerRow}${bodyRows}</table>`;
 }
 
-export function formatSummaryForCopy(result: { summary: string; keyPoints: string[] }): { text: string; html: string } {
+export function formatSummaryForCopy(result: {
+  summary: string;
+  keyPoints: string[];
+  improvementSuggestions: string[];
+}): { text: string; html: string } {
   const blocks = parseSummaryBlocks(result.summary);
   const textParts = blocks.map(blockToPlainText);
   const htmlParts = blocks.map(blockToHtml);
@@ -92,6 +96,13 @@ export function formatSummaryForCopy(result: { summary: string; keyPoints: strin
     textParts.push(["Key points:", ...result.keyPoints.map((p) => `- ${p}`)].join("\n"));
     htmlParts.push(
       `<p><strong>Key points:</strong></p><ul>${result.keyPoints.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`
+    );
+  }
+
+  if (result.improvementSuggestions.length > 0) {
+    textParts.push(["Improvement suggestions:", ...result.improvementSuggestions.map((p) => `- ${p}`)].join("\n"));
+    htmlParts.push(
+      `<p><strong>Improvement suggestions:</strong></p><ul>${result.improvementSuggestions.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`
     );
   }
 

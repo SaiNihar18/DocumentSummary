@@ -68,6 +68,20 @@ export default function ResultView({ result, length, onLengthChange, onStartOver
         </div>
       )}
 
+      {result.improvementSuggestions.length > 0 && (
+        <div className="print:mt-3 print:break-inside-avoid">
+          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors duration-300 dark:text-slate-400 print:text-xs print:font-bold print:!text-slate-900">
+            Improvement Suggestions
+          </h2>
+          <ul className="list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-slate-800 transition-colors duration-300 dark:text-slate-100 sm:text-base sm:leading-relaxed print:space-y-2 print:text-sm print:font-medium print:leading-relaxed print:!text-slate-900">
+            {result.improvementSuggestions.map((suggestion, i) => (
+              <li key={i} className="print:break-inside-avoid">
+                {suggestion}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Screen Footer Actions */}
       <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 transition-colors duration-300 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between print:hidden">
