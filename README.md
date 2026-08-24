@@ -1,6 +1,18 @@
-# DocSum
+<p align="center">
+  <img src="public/images/logo.png" width="72" alt="DocSum logo" />
+</p>
 
-Upload a PDF, JPG, or PNG and get an AI-generated summary with key points in seconds.
+<h1 align="center">DocSum</h1>
+
+<p align="center">
+  Upload a PDF, JPG, or PNG and get an AI-generated summary with key points in seconds.
+</p>
+
+<p align="center">
+  <a href="https://docsum-bay.vercel.app"><b>Live App</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://drive.google.com/file/d/1Q4pgNzK6Yonim6QdZMBaR4CbJx9yXNm5/view?usp=sharing"><b>Approach Write-up (PDF)</b></a>
+</p>
 
 ## Features
 
